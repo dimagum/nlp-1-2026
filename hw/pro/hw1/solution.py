@@ -25,9 +25,8 @@ def clean_wap_sentence(sentence: str) -> str:
 
     Returns:
         str: The cleaned sentence.
-    """
-    # <YOUR_CODE_HERE>
-    
+    """    
+
     sentence = re.sub(r'\n+', ' ', sentence)   # 1
     sentence = re.sub(r'--+', ' ', sentence)   # 2
 
@@ -54,7 +53,6 @@ def build_fasttext_model(wap_sentences: PathLineSentences) -> FastText:
         FastText: An initialized FastText model with vocabulary built.
     """
 
-    # <YOUR_CODE_HERE>
     model = FastText(
         vector_size=100,
         window=5,
@@ -80,8 +78,6 @@ def train_fasttext_model(wap_sentences: PathLineSentences, model:FastText) -> Fa
     Returns:
         FastText: The trained FastText model.
     """
-
-    # <YOUR_CODE_HERE>
 
     model.train(
         corpus_iterable=wap_sentences,
@@ -112,8 +108,6 @@ def preprocess_line(line: str) -> str:
         str: The preprocessed line of text.
     """
 
-    # <YOUR_CODE_HERE>
-
     punctuation_without_apostrophy = string.punctuation.replace("'", "")
     line = line.translate(str.maketrans("", "", punctuation_without_apostrophy))    # 1
     line = line.lower()    # 2
@@ -137,7 +131,6 @@ def preprocess_file(input_file_path: str, output_file_path: str) -> int:
         int: The total number of lines processed in the input file.
     """
 
-    # <YOUR_CODE_HERE>
     lines_processed = 0
 
     with open(input_file_path, 'r', encoding="utf-8") as input_file, open(output_file_path, 'w', encoding="utf-8") as output_file:
@@ -163,7 +156,7 @@ def update_fasttext_vocab(finetuned_model: FastText, sentences: PathLineSentence
     Returns:
         The FastText model with the updated vocabulary.
     """
-    # <YOUR_CODE_HERE>
+    
     finetuned_model.build_vocab(sentences, update=True)
 
     return finetuned_model
@@ -180,7 +173,7 @@ def update_fasttext_model(finetuned_model: FastText, sentences: PathLineSentence
     Returns:
         The additionally trained FastText model.
     """
-    # <YOUR_CODE_HERE>
+    
     finetuned_model.train(
         corpus_iterable=sentences,
         total_examples=finetuned_model.corpus_count,
@@ -207,7 +200,6 @@ def normalize_vector(embedding: np.ndarray) -> np.ndarray:
         np.ndarray: A normalized vector with unit length.
     """
 
-    # <YOUR_CODE_HERE>
     norm = np.linalg.norm(embedding)
     if norm <= 1e-6:
         return embedding
@@ -229,8 +221,7 @@ def get_text_embedding(text: str, model: FastText) -> np.ndarray:
         np.ndarray: The normalized embedding for the input text.
                     If no valid words are found in the text, returns a zero vector.
     """
-
-    # <YOUR_CODE_HERE>
+    
     processed_text = preprocess_line(text)
     words = processed_text.split()
 
@@ -265,8 +256,7 @@ def create_embeddings_storage(quora_file: str, model: FastText) -> np.ndarray:
                     of a question in the dataset. Shape: (num_questions, embedding_dim).
     """
     embeddings_list: List[np.ndarray] = []
-
-    # <YOUR_CODE_HERE>
+    
     with open(quora_file, "r", encoding="utf-8") as file:
         for line in file:
             processed_line = preprocess_line(line)
@@ -298,19 +288,16 @@ def find_closest_match_np(query: str, model: FastText, embeddings_storage: np.nd
     """
 
     # Preprocess the query and embed the question
-    # <YOUR_CODE_HERE>
     processed_query = preprocess_line(query)
     query_embedding = get_text_embedding(text=processed_query, model=model)
 
     # Compute cosine similarity
     # Dot product if the vectors are normalized embeddings
     # You might want to look up np.dot
-    # <YOUR_CODE_HERE>
     similarities = np.dot(embeddings_storage, query_embedding)
 
     # Get the indices of the top-k most similar questions
     # You might want to look up np.argsort
-    # <YOUR_CODE_HERE>
 
     top_k_indices, top_k_similarities = np.argsort(similarities)[-k:][::-1], similarities[np.argsort(similarities)[-k:][::-1]]
     return top_k_indices, top_k_similarities
