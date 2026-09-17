@@ -9,6 +9,7 @@ hw/pro/hw1/quora_raw.txt
 hw/pro/hw1/quora_processed.txt
 hw/pro/hw1/__pycache__
 hw/pro/hw1/submission.zip
+hw/pro/hw1/requirements.txt
 
 
 checks.ipynb
