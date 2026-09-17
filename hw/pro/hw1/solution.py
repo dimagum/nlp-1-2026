@@ -27,7 +27,15 @@ def clean_wap_sentence(sentence: str) -> str:
         str: The cleaned sentence.
     """
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    
+    sentence = re.sub(r'\n+', ' ', sentence)   # 1
+    sentence = re.sub(r'--+', ' ', sentence)   # 2
+
+    punctuation_without_apostrophy = string.punctuation.replace("'", "")
+    sentence = sentence.translate(str.maketrans("", "", punctuation_without_apostrophy))    # 3
+    sentence = sentence.lower()    # 4
+    sentence = re.sub(r'\s+', ' ', sentence)    # 5
+    sentence = sentence.strip()    # 6
 
     return sentence
 
@@ -47,9 +55,17 @@ def build_fasttext_model(wap_sentences: PathLineSentences) -> FastText:
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    model = FastText(
+        vector_size=100,
+        window=5,
+        sg=1,
+        alpha=3e-2,
+        seed=42,
+        bucket=100000,
+        workers=1
+    )
 
-    model = _
+    model.build_vocab(wap_sentences)
 
     return model
 
@@ -66,10 +82,11 @@ def train_fasttext_model(wap_sentences: PathLineSentences, model:FastText) -> Fa
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
 
     model.train(
-        
+        corpus_iterable=wap_sentences,
+        total_examples=model.corpus_count,
+        epochs=5,
     )
 
     return model
@@ -96,7 +113,12 @@ def preprocess_line(line: str) -> str:
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+
+    punctuation_without_apostrophy = string.punctuation.replace("'", "")
+    line = line.translate(str.maketrans("", "", punctuation_without_apostrophy))    # 1
+    line = line.lower()    # 2
+    line = re.sub(r'\s+', ' ', line)    # 3
+    line = line.strip()    # 4
 
     return line
 
@@ -116,10 +138,16 @@ def preprocess_file(input_file_path: str, output_file_path: str) -> int:
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    lines_processed = 0
 
-    lines_processed = _
+    with open(input_file_path, 'r', encoding="utf-8") as input_file, open(output_file_path, 'w', encoding="utf-8") as output_file:
+        for line in input_file:
+            processed_line = preprocess_line(line)
+            output_file.write(processed_line + "\n")
 
+
+            lines_processed += 1
+    
     return lines_processed
 
 # 2.2 Finetune using quora dataset (model validate)
@@ -136,7 +164,7 @@ def update_fasttext_vocab(finetuned_model: FastText, sentences: PathLineSentence
         The FastText model with the updated vocabulary.
     """
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    finetuned_model.build_vocab(sentences, update=True)
 
     return finetuned_model
 
@@ -153,7 +181,13 @@ def update_fasttext_model(finetuned_model: FastText, sentences: PathLineSentence
         The additionally trained FastText model.
     """
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    finetuned_model.train(
+        corpus_iterable=sentences,
+        total_examples=finetuned_model.corpus_count,
+        epochs=1,
+        start_alpha=finetuned_model.min_alpha,
+        end_alpha=finetuned_model.min_alpha
+    )
 
     return finetuned_model
 
@@ -174,9 +208,11 @@ def normalize_vector(embedding: np.ndarray) -> np.ndarray:
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    norm = np.linalg.norm(embedding)
+    if norm <= 1e-6:
+        return embedding
 
-    return embedding
+    return embedding / norm
 
 # 3.1.1 Implement a way to search similar quora questions given a new query (get_text_embedding)
 # 3.2 Implement a way to search similar quora questions given a new query (create_embeddings_storage, get_text_embedding)
@@ -195,9 +231,20 @@ def get_text_embedding(text: str, model: FastText) -> np.ndarray:
     """
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    processed_text = preprocess_line(text)
+    words = processed_text.split()
 
-    normalized_word_embedding = _
+    if not words:
+        return np.zeros(model.wv.vector_size, dtype=np.float32)
+
+    word_embeddings = [
+        model.wv[word] 
+        for word in words
+    ]
+
+    mean_embedding = np.mean(word_embeddings, axis=0)
+
+    normalized_word_embedding = normalize_vector(mean_embedding)
 
     return normalized_word_embedding
 
@@ -220,7 +267,11 @@ def create_embeddings_storage(quora_file: str, model: FastText) -> np.ndarray:
     embeddings_list: List[np.ndarray] = []
 
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    with open(quora_file, "r", encoding="utf-8") as file:
+        for line in file:
+            processed_line = preprocess_line(line)
+            line_embedding = get_text_embedding(text=processed_line, model=model)
+            embeddings_list.append(line_embedding)
 
     # Convert the list of embeddings to a NumPy array
     return np.array(embeddings_list)
@@ -248,16 +299,18 @@ def find_closest_match_np(query: str, model: FastText, embeddings_storage: np.nd
 
     # Preprocess the query and embed the question
     # <YOUR_CODE_HERE>
-    raise NotImplementedError
+    processed_query = preprocess_line(query)
+    query_embedding = get_text_embedding(text=processed_query, model=model)
 
     # Compute cosine similarity
     # Dot product if the vectors are normalized embeddings
     # You might want to look up np.dot
     # <YOUR_CODE_HERE>
+    similarities = np.dot(embeddings_storage, query_embedding)
 
     # Get the indices of the top-k most similar questions
     # You might want to look up np.argsort
     # <YOUR_CODE_HERE>
 
-    top_k_indices, top_k_similarities = _, _
+    top_k_indices, top_k_similarities = np.argsort(similarities)[-k:][::-1], similarities[np.argsort(similarities)[-k:][::-1]]
     return top_k_indices, top_k_similarities

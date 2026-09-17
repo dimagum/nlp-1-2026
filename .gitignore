@@ -1,2 +1,13 @@
 .venv
 venv
+
+hw/pro/hw1/solution_data
+hw/pro/hw1/data
+hw/pro/hw1/war_and_peace_raw.txt
+hw/pro/hw1/war_and_peace_cleaned.txt
+hw/pro/hw1/quora_raw.txt
+hw/pro/hw1/quora_processed.txt
+hw/pro/hw1/__pycache__
+
+
+checks.ipynb
