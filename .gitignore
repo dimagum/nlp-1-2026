@@ -11,5 +11,7 @@ hw/pro/hw1/__pycache__
 hw/pro/hw1/submission.zip
 hw/pro/hw1/requirements.txt
 
+hw/pro/hw2/deberta-qqp
+
 
 checks.ipynb
