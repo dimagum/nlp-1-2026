@@ -8,7 +8,8 @@ authors = [
 ]
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "accelerate==1.12.0",
+    "accelerate>=0.33,<0.36",
+    "bitsandbytes>=0.48.1",
     "datasets==4.5.0",
     "faiss-cpu==1.15.0",
     "gensim==4.3.3",
@@ -17,7 +18,9 @@ dependencies = [
     "matplotlib>=3.11.2",
     "nltk==3.10.3",
     "numpy==1.26.4",
+    "optimum>=1.20.0",
     "pandas>=3.0.5",
+    "peft>=0.11.1",
     "protobuf==5.29.5",
     "scikit-learn>=1.5,<2",
     "scipy==1.13.1",
@@ -26,7 +29,7 @@ dependencies = [
     "smart-open==8.0.1",
     "torch>=2.14.0",
     "tqdm>=4.70.1",
-    "transformers==4.57.6",
+    "transformers>=4.43,<4.46",
     "unicode>=2.9",
     "unidecode==1.4.0",
     "wrapt==2.3.0",
