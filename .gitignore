@@ -13,5 +13,7 @@ hw/pro/hw1/requirements.txt
 
 hw/pro/hw2/deberta-qqp
 
+hw/pro/hw3/outputs
+
 
 checks.ipynb
